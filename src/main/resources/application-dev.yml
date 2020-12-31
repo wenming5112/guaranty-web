@@ -1,0 +1,129 @@
+server:
+  port: 8888
+#  ssl:
+#    key-store: classpath:ssl/gua.esbug.com.pfx
+#    key-store-password: xw9yCoRm
+  servlet:
+    context-path: /
+
+###### spring ######
+spring:
+  main:
+    banner-mode: console
+  ###### datasource ######
+  datasource:
+    druid:
+      db-type: mysql
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://192.168.1.191:3306/guaranty?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&allowMultiQueries=true
+      username: root
+      password: 123456
+      initial-size: 10
+      min-idle: 10
+      max-active: 100
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 30000
+      validation-query: select 'x'
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      filters: stat,slf4j
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      useGlobalDataSourceStat: true
+
+  ###### redis ######
+  redis:
+    host: 47.108.143.240
+    port: 6379
+    password: Ming112031
+    # 连接超时时间
+    timeout: 2000ms
+    jedis:
+      pool:
+        # 最大连接数
+        max-active: 20
+        # 最大阻塞等待时间(负数表示没限制)
+        max-wait: -1ms
+        # 最大空闲
+        max-idle: 8
+        # 最小空闲
+        min-idle: 5
+  ###### email ######
+  mail:
+    username: an23gn@163.com
+    password: YAJCXMCRBACVQLAD
+    host: smtp.163.com
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  ###### servlet ######
+  servlet:
+    multipart:
+      # 文件上传大小限制
+      max-file-size: 200MB
+      max-request-size: 200MB
+      enabled: true
+
+###### mybatis-plus ######
+mybatis-plus:
+  configuration:
+    # 打印sql语句(调试用)
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+###### log ######
+logging:
+  level:
+    root: error
+    org.springframework.web: error
+    com.example.guaranty: debug
+  file:
+    path: F:/log/guaranty
+
+###### fabric-sdk-plus ######
+fabric-sdk-plus:
+  channel-name: tldchannel
+  connection-file-path: /static/network-jiqun-config.json
+
+###### file-upload ######
+file-upload:
+  path: E:/guaranty/
+  base-url: http://file.esbug.com:7000/
+
+###### real-name-auth ######
+real-name-auth:
+  app-code: 4362cfb0bda04c72a5b2db90a89792fb
+  host: https://idenauthen.market.alicloudapi.com
+  path: /idenAuthentication
+  method: POST
+
+###### email-verify ######
+email-verify:
+  expire-time: 300 # 单位秒
+  from: an23gn@163.com
+  subject: 【Guaranty】注册
+  replace-str: VERIFY_CODE
+  template: "您的验证码是: ${email-verify.replace-str} , 有效时间为 5 分钟。"
+
+###### fabric-sdk ######
+fabric-sdk:
+  tls: true
+  ca-name: ca-org1
+  ca-admin-name: admin
+  ca-admin-pass: admin
+  ca-ip: 47.108.143.240
+  ca-port: 7054
+  ca-dep: org1.department1
+  org-name: Org1
+  org-msp-id: Org1MSP
+  org-domain-name: org1.example.com
+  channel-name: score
+  chain-code-name: guaranty
+  chain-code-source: F:/wzm_work/IDEAProjects/guaranty
+  chain-code-version: 4

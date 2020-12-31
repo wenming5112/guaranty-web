@@ -1,0 +1,24 @@
+###### Token expireTime ######
+jwt:
+  token:
+    expire-time: 1800
+
+
+###### rsa 公私钥 ######
+rsa:
+  private-key: MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKtQ64J2VSHL6v6BLzdXVsi6omLQZnbFlKEdb2r3rULJAZoQtjtIBFgX0jnMDjbzWNmgwuOa8kECLKcVHoouWsshS6c9HjKNO0Jt2n7L3DHVJBg/3ocZ7V4GYFv8BO3tYKAC0bJdlyj8AqSx9fNlDX+VCYAJwH5L8MaikSaE3j/NAgMBAAECgYBGvF7Bu4JjNgONmmGYhCN9NjKeglYMbIB2FeVPUXzkuoJCzuuvhojkptFStAKahdgF4+8Uc4Hbfb5aLsoxW/p4fp6vpooNT95OlFCGd5L/7cgRVAjkaVzGHX+sSa5UnPMT5QSxvo34bfq5JdqD4kFPNJyzNRAftawbRHeFQ3v6MQJBAO5c8FKn8rtzp4RErmTVgTiSx/Ctttbxq/cuLILGHX5wrcpBRBAt6E/qZpyC/lVHtez8NckfGSoAZQ17FDxmGocCQQC3/fsrwsRSyT88FsCyeAfnwmcqMr0+ZKLJoDZsd8hELc9BErG0ryf2Rc/1ZnP50CR/G6JBgdPg7a9+R3BKpwQLAkB2ODIZTKLexaW3vDiiWiIU5Pe1LvMX+BTKK2R4F7pZE5meTnBrddlaiW8LAQ0TTtW0DALBFWNtqXR1Ey4eJqXRAkBF2XXxNw+xHhWTik+9cTQPGA5yRrDxbuMeCGSg6RhuSbXUznQIVDanl/lLAIom3I3+c08170OwsItfNV+794vhAkEA3h7kNOKeRGg3tl48ngDUlA7F3Y8Pyw48nz81TB3h5XAElgO5xcVQnTRHdLwuxICWclUkeslHWjmkrzrW0v1hMw==
+  public-key: MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCrUOuCdlUhy+r+gS83V1bIuqJi0GZ2xZShHW9q961CyQGaELY7SARYF9I5zA4281jZoMLjmvJBAiynFR6KLlrLIUunPR4yjTtCbdp+y9wx1SQYP96HGe1eBmBb/ATt7WCgAtGyXZco/AKksfXzZQ1/lQmACcB+S/DGopEmhN4/zQIDAQAB
+
+
+###### 文件上传(local) ######
+upload:
+  path: xxx
+  url: xxx
+
+
+###### 文件上传(Ali OSS) ######
+ali:
+  oss:
+    access-key: LTAIKFuImP5cGMf7
+    access-secret: 0KfItxUuKxFzYGv3QCyYpiTuJp4hkr
+

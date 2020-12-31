@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.guaranty.dao.business.BackstageUserMapper">
+
+    <resultMap id="backstageUserMap" type="com.example.guaranty.entity.business.BackstageUser">
+
+    </resultMap>
+
+    <insert id="setUserRoles">
+        INSERT INTO t_backstage_user_role(back_user_id,back_role_id)
+        VALUES
+        <foreach collection="roles" item="role" separator=",">
+            (#{userId},#{role})
+        </foreach>
+    </insert>
+
+    <select id="getUserRole" resultType="com.example.guaranty.vo.business.BackRoleVO">
+        SELECT
+            DISTINCT
+            role.id          AS roleId,
+            role.role_name   AS roleName,
+            role.role_desc   AS roleDesc,
+            role.create_time AS createTime,
+            role.modify_time AS modifyTime
+        FROM
+            t_backstage_role AS role
+            INNER JOIN t_backstage_user_role AS ur
+                ON ur.back_role_id = role.id
+            INNER JOIN t_backstage_user AS u
+                ON u.id = ur.back_user_id
+        WHERE u.id = #{userId} AND u.valid = 1 AND ur.valid = 1 AND role.valid = 1
+    </select>
+
+    <select id="getUserRoleIds" resultType="java.lang.Integer">
+        SELECT role.id
+        FROM t_backstage_role AS role
+            LEFT JOIN t_backstage_user_role AS ur
+                ON ur.back_role_id = role.id
+        WHERE ur.back_user_id = #{userId} AND role.valid = 1
+    </select>
+
+    <resultMap id="RoleMap" type="com.example.guaranty.vo.business.BackRoleVO">
+        <result column="id" property="roleId"/>
+        <result column="role_name" property="roleName"/>
+        <result column="role_desc" property="roleDesc"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modify_time" property="modifyTime"/>
+        <!--需要关闭懒加载，不然对象不是原来的对象-->
+        <!-- 1-1 -->
+        <!--<association property="user" column="user_id" javaType="cn.xleos.mybatis.po.User" select="getUserById" />-->
+        <!-- 1-n -->
+        <!--<collection property="resources" column="id" javaType="list" fetchType="lazy" select="getRolesMenus"/>-->
+        <collection property="menus" column="id" javaType="list" fetchType="eager" select="getRolesMenus"/>
+    </resultMap>
+
+    <select id="getRolesMenus" resultType="com.example.guaranty.vo.business.BackMenuVO"
+            parameterType="java.lang.Integer">
+        SELECT
+            menu.id          AS menuId,
+            menu.title       AS title,
+            menu.path        AS path,
+            menu.component   AS component,
+            menu.url         AS url,
+            menu.permission  AS permission,
+            menu.parent_id   AS pid,
+            menu.type        AS type,
+            menu.description AS description,
+            menu.create_time AS createTime,
+            menu.modify_time AS modifyTime
+        FROM t_backstage_menu AS menu
+        WHERE menu.id IN (SELECT rm.back_menu_id
+                          FROM t_backstage_role_menu AS rm
+                          WHERE rm.back_role_id = #{id})
+    </select>
+
+    <select id="selectUserAllRoles" resultMap="RoleMap">
+        SELECT *
+        FROM t_backstage_role AS role
+        WHERE id IN (SELECT ur.back_role_id
+                     FROM t_backstage_user_role AS ur
+                     WHERE ur.back_user_id = #{userId})
+    </select>
+
+    <resultMap id="UserInfoMap" type="com.example.guaranty.vo.business.UserInfoVO">
+        <result column="id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="telephone" property="telephone"/>
+        <result column="email" property="email"/>
+        <result column="bank_id" property="bankId"/>
+        <result column="real_name_authentication" property="realNameAuthentication"/>
+        <result column="real_name" property="realName"/>
+        <result column="id_card" property="idNo"/>
+        <result column="status" property="userStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modify_time" property="modifyTime"/>
+        <!--需要关闭懒加载，不然对象不是原来的对象-->
+        <!-- 1-1 -->
+        <collection property="roles" column="id" fetchType="eager" javaType="list" select="selectUserAllRoles"/>
+    </resultMap>
+
+    <select id="selectMyUserInfo" resultMap="UserInfoMap" parameterType="java.lang.Integer">
+        SELECT *
+        FROM t_backstage_user
+        WHERE id = #{userId}
+    </select>
+
+    <select id="getUserByRole" resultMap="backstageUserMap">
+        SELECT *
+        FROM t_backstage_user AS u
+            LEFT JOIN t_backstage_user_role AS ur
+                ON u.id = ur.back_user_id
+        WHERE ur.back_role_id = #{roleId}
+              AND u.bank_id = #{bankId}
+              AND u.valid = 1
+    </select>
+
+    <!-- 查询所有的用户 -->
+    <select id="selectAllUsers" resultMap="UserInfoMap">
+        SELECT *
+        FROM t_backstage_user
+        WHERE valid = 1
+        <if test="userName != null and userName != ''">
+            AND user_name LIKE
+            CONCAT('%',#{userName},'%')
+        </if>
+        <if test="telephone != null and telephone != ''">
+            AND telephone LIKE
+            CONCAT('%',#{telephone},'%')
+        </if>
+        <if test="email != null and email != ''">
+            AND email LIKE
+            CONCAT('%',#{email},'%')
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="addBackUser" parameterType="com.example.guaranty.entity.business.BackstageUser" keyColumn="id"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_backstage_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="telephone != null">
+                telephone,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="createTime != null ">
+                create_time,
+            </if>
+            <if test="valid != null">
+                valid,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userName != null">
+                #{userName},
+            </if>
+            <if test="password != null">
+                #{password},
+            </if>
+            <if test="email != null">
+                #{email},
+            </if>
+            <if test="telephone != null">
+                #{telephone},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="creator != null">
+                #{creator},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="valid != null">
+                #{valid},
+            </if>
+        </trim>
+    </insert>
+
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.guaranty.dao.business.BankMapper">
+
+    <resultMap id="BankMap" type="com.example.guaranty.entity.business.Bank">
+        <result column="id" property="id" />
+        <result column="bank_name" property="bankName" />
+        <result column="bank_icon" property="bankIcon" />
+        <result column="bank_addr" property="bankAddr" />
+        <result column="bank_tel" property="bankTel" />
+        <result column="create_time" property="createTime" />
+        <result column="modify_time" property="modifyTime" />
+        <result column="creator" property="creator" />
+        <result column="modifier" property="modifier" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+    
+</mapper>

@@ -1,0 +1,32 @@
+version: '2'
+
+# Please create the data and logs directories beforehand
+
+services:
+   mysql-server:
+     image: docker.io/mysql:5.7
+     container_name: mysql
+     restart: always
+     environment:
+       # 指定root密码。不指定则会启动失败
+       TZ: Asia/Shanghai
+       MYSQL_DATABASE: tld
+       MYSQL_ROOT_PASSWORD: Mblog112031
+       MYSQL_ROOT_HOST: '%'
+       MYSQL_USER: xiaoming
+       MYSQL_PASS: Mblog112031
+     volumes:
+       # echo 'Asia/Shanghai' > /etc/timezone/timezone
+       - /etc/timezone/timezone:/etc/timezone
+       - /etc/localtime:/etc/localtime
+       # init sql
+       - ./init:/docker-entrypoint-initdb.d/:ro
+       # db conf
+       - ./conf/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf:ro
+       # db data
+       - ./data:/var/lib/mysql/:rw
+       # logs
+       - ./logs:/var/log/mysql/:rw
+     ports:
+       - 11306:3306
+

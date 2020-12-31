@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.guaranty.dao.business.BackstageRoleMapper">
+
+    <resultMap id="backstageRoleMap" type="com.example.guaranty.entity.business.BackstageRole">
+
+    </resultMap>
+
+    <select id="selectByUsername" resultMap="backstageRoleMap">
+        SELECT
+            r.id        AS id,
+            r.role_name AS roleName
+        FROM
+            t_backstage_role AS r
+            LEFT JOIN t_backstage_user_role AS ur
+                ON ur.back_role_id = r.id
+            LEFT JOIN t_backstage_user AS u
+                ON u.id = ur.back_user_id
+        WHERE u.user_name = #{username}
+    </select>
+
+    <!--根据menu查询角色-->
+    <select id="queryRolesByMenu" resultMap="backstageRoleMap">
+        SELECT
+            r.id        AS id,
+            r.role_name AS roleName,
+            r.valid     AS valid
+        FROM
+            t_backstage_role AS r
+            INNER JOIN t_backstage_role_menu AS rm
+                ON rm.back_role_id = r.id
+        WHERE rm.back_menu_id = #{menuId} AND rm.valid = 1 AND r.valid = 1
+        GROUP BY r.role_name
+    </select>
+
+    <insert id="setRoleMenu">
+        INSERT INTO t_backstage_role_menu(back_role_id,back_menu_id,creator)
+        VALUES
+        <foreach collection="menus" item="menu" separator=",">
+            (#{roleId},#{menu},#{operator})
+        </foreach>
+    </insert>
+
+    <select id="getRoleMenu" resultType="com.example.guaranty.vo.business.BackMenuVO">
+        SELECT
+            DISTINCT
+            menu.id          AS menuId,
+            menu.title       AS title,
+            menu.path       AS path,
+            menu.component       AS component,
+            menu.title       AS title,
+            menu.url         AS url,
+            menu.permission  AS permission,
+            menu.parent_id   AS pid,
+            menu.type        AS type,
+            menu.create_time AS createTime,
+            menu.modify_time AS modifyTime
+        FROM
+            t_backstage_menu AS menu
+            LEFT JOIN t_backstage_role_menu AS rm
+                ON menu.id = rm.back_menu_id
+            LEFT JOIN t_backstage_role AS role
+                ON role.id = rm.back_role_id
+        WHERE role.id = #{roleId} AND menu.valid = 1 AND rm.valid = 1 AND role.valid = 1
+    </select>
+
+    <select id="getRoleMenuIds" >
+        SELECT rm.back_menu_id AS menuId
+        FROM
+            t_backstage_role_menu AS rm
+            LEFT JOIN t_backstage_role AS role
+                ON role.id = rm.back_role_id
+        WHERE role.id = #{roleId} AND role.valid = 1
+    </select>
+
+</mapper>

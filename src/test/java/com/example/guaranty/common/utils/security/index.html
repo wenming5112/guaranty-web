@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>APP</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <!--引入 element-ui 的样式，-->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 必须先引入vue，  后使用element-ui -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <!-- 引入element 的组件库-->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.bootcss.com/jsencrypt/3.0.0-beta.1/jsencrypt.js"></script>
+    <script src="./encryption.js"></script>
+</head>
+<body>
+
+<div id="index">
+    <div style="display: flex;justify-content: space-between;align-items: center;">
+        <div style="margin: 30px;">
+            <span>账号：</span><span>{{account}}</span><br/>
+            <span>钱包地址：</span><span>{{walletAddress}}</span><br/>
+            <span>资产：</span><span>{{walletBalance}} TP</span><br/>
+        </div>
+        <a href="login.html" style="margin-right: 30px">退出登录</a>
+    </div>
+
+    <div style="margin-left: 30px;">
+        <el-button @click="rechargeDialog = true">充值</el-button>
+        <el-button @click="cashDialog = true">提现</el-button>
+        <el-button @click="test">测试</el-button>
+
+        <el-dialog
+                title="充值"
+                :visible.sync="rechargeDialog"
+                width="50%">
+
+            <el-form label-width="100px" class="demo-ruleForm">
+                <el-form-item label="账号" prop="recharge.account">
+                    <el-input v-model="recharge.account"></el-input>
+                </el-form-item>
+                <el-form-item label="充值数量" prop="recharge.rechargeNum">
+                    <el-input v-model="recharge.rechargeNum"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button @click="rechargeDialog = false">取消</el-button>
+                    <el-button type="primary" @click="accountRecharge">{{recharge.rechargeButtonText}}</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+
+        <el-dialog
+                title="提现"
+                :visible.sync="cashDialog"
+                width="50%">
+            <el-form label-width="100px" class="demo-ruleForm">
+                <el-form-item label="账号" prop="cash.account">
+                    <el-input v-model="cash.account"></el-input>
+                </el-form-item>
+                <el-form-item label="提现数量" prop="cash.cashNum">
+                    <el-input v-model="cash.cashNum"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button @click="cashDialog = false">取消</el-button>
+                    <el-button type="primary" @click="accountCash">{{cash.cashButtonText}}</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+
+    </div>
+
+    <div>
+        <h3>充值记录</h3>
+        <template>
+            <el-table
+                    v-loading="recharge.rechargeLoading"
+                    :data="rechargeLog"
+                    border
+                    style="width: 80%">
+                <el-table-column
+                        prop="account"
+                        label="充值账号"
+                        width="180">
+                </el-table-column>
+                <el-table-column
+                        prop="rechargeNum"
+                        label="充值数量">
+                </el-table-column>
+                <el-table-column
+                        prop="remark"
+                        label="状态">
+                </el-table-column>
+                <el-table-column
+                        prop="createTime"
+                        label="充值时间">
+                </el-table-column>
+            </el-table>
+        </template>
+        <el-pagination
+                small
+                layout="prev, pager, next"
+                :total="queryRechargeLog.total"
+                :page-size="queryRechargeLog.pageSize"
+                @current-change="rechargeLogFunction"
+        >
+        </el-pagination>
+    </div>
+    <div>
+        <h3>提现记录</h3>
+        <template>
+            <el-table
+                    v-loading="cash.cashLoading"
+                    :data="cashLog"
+                    border
+                    style="width: 80%">
+                <el-table-column
+                        prop="account"
+                        label="提现账号"
+                        width="180">
+                </el-table-column>
+                <el-table-column
+                        prop="cashNum"
+                        label="提现数量">
+                </el-table-column>
+                <el-table-column
+                        prop="remark"
+                        label="状态">
+                </el-table-column>
+                <el-table-column
+                        prop="createTime"
+                        label="提现时间">
+                </el-table-column>
+            </el-table>
+        </template>
+        <el-pagination
+                small
+                layout="prev, pager, next"
+                :total="queryCashLog.total"
+                :page-size="queryCashLog.pageSize"
+                @current-change="cashLogFunction"
+        >
+        </el-pagination>
+    </div>
+
+
+</div>
+<script>
+
+
+    new Vue({
+        el: "#index",
+        data() {
+            return {
+                account: '',
+                walletBalance: '',
+                walletAddress: '',
+                rechargeLog: [],
+                cashLog: [],
+                merchantId: '5888234294161727792',
+                publicKey: 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCrUOuCdlUhy+r+gS83V1bIuqJi0GZ2xZShHW9q961CyQGaELY7SARYF9I5zA4281jZoMLjmvJBAiynFR6KLlrLIUunPR4yjTtCbdp+y9wx1SQYP96HGe1eBmBb/ATt7WCgAtGyXZco/AKksfXzZQ1/lQmACcB+S/DGopEmhN4/zQIDAQAB',
+                privateKey: 'MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKtQ64J2VSHL6v6BLzdXVsi6omLQZnbFlKEdb2r3rULJAZoQtjtIBFgX0jnMDjbzWNmgwuOa8kECLKcVHoouWsshS6c9HjKNO0Jt2n7L3DHVJBg/3ocZ7V4GYFv8BO3tYKAC0bJdlyj8AqSx9fNlDX+VCYAJwH5L8MaikSaE3j/NAgMBAAECgYBGvF7Bu4JjNgONmmGYhCN9NjKeglYMbIB2FeVPUXzkuoJCzuuvhojkptFStAKahdgF4+8Uc4Hbfb5aLsoxW/p4fp6vpooNT95OlFCGd5L/7cgRVAjkaVzGHX+sSa5UnPMT5QSxvo34bfq5JdqD4kFPNJyzNRAftawbRHeFQ3v6MQJBAO5c8FKn8rtzp4RErmTVgTiSx/Ctttbxq/cuLILGHX5wrcpBRBAt6E/qZpyC/lVHtez8NckfGSoAZQ17FDxmGocCQQC3/fsrwsRSyT88FsCyeAfnwmcqMr0+ZKLJoDZsd8hELc9BErG0ryf2Rc/1ZnP50CR/G6JBgdPg7a9+R3BKpwQLAkB2ODIZTKLexaW3vDiiWiIU5Pe1LvMX+BTKK2R4F7pZE5meTnBrddlaiW8LAQ0TTtW0DALBFWNtqXR1Ey4eJqXRAkBF2XXxNw+xHhWTik+9cTQPGA5yRrDxbuMeCGSg6RhuSbXUznQIVDanl/lLAIom3I3+c08170OwsItfNV+794vhAkEA3h7kNOKeRGg3tl48ngDUlA7F3Y8Pyw48nz81TB3h5XAElgO5xcVQnTRHdLwuxICWclUkeslHWjmkrzrW0v1hMw==',
+                queryRechargeLog: {
+                    pageNo: 1,
+                    pageSize: 5,
+                    total: 0
+                },
+                queryCashLog: {
+                    pageNo: 1,
+                    pageSize: 5,
+                    total: 0
+                },
+                rechargeDialog: false,
+                cashDialog: false,
+                rechargeAccountReadOnly: true,
+                cashAccountReadOnly: true,
+                recharge: {
+                    account: '',
+                    rechargeNum: '0',
+                    rechargeLoading: true,
+                    rechargeButtonText: '确定'
+                },
+                cash: {
+                    account: '',
+                    cashNum: '0',
+                    cashLoading: true,
+                    cashButtonText: '确定'
+                }
+            }
+        },
+        mounted() {
+            let userInfo = sessionStorage.getItem("user");
+            if (null != userInfo) {
+                userInfo = JSON.parse(userInfo);
+            }
+            this.account = userInfo.account;
+            this.walletAddress = userInfo.walletAddress;
+            this.walletBalance = userInfo.walletBalance;
+            this.recharge.account = userInfo.account;
+            this.cash.account = userInfo.account;
+            this.$nextTick(() => {
+                this.rechargeLogFunction(1);
+                this.cashLogFunction(1);
+            });
+        },
+        methods: {
+            rechargeLogFunction(val) {
+                this.queryRechargeLog.pageNo = val;
+                let param = {
+                    "account": this.account,
+                    "merchantId": this.merchantId,
+                    "pageNo": this.queryRechargeLog.pageNo,
+                    "pageSize": this.queryRechargeLog.pageSize
+                };
+
+                // 密文
+                let encryptStr = paramEncryptLong(param, this.publicKey);
+
+                let formData = new FormData();
+                formData.append("parameter", encryptStr);
+                formData.append("merchantId", this.merchantId);
+
+                axios({
+                    url: "http://192.168.1.120:8030/api/v1/accountRechargeLog",
+                    method: "post",
+                    data: formData
+                }).then(res => {
+                    let {code, data, msg} = res.data;
+                    if (code === 200) {
+                        this.queryRechargeLog.total = data.paging.total;
+                        this.rechargeLog = data.list;
+                        this.recharge.rechargeLoading = false;
+                    } else {
+                        this.$message.error(msg);
+                    }
+                });
+
+            },
+            cashLogFunction(val) {
+                this.queryCashLog.pageNo = val;
+                let param = {
+                    "account": this.account,
+                    "merchantId": this.merchantId,
+                    "pageNo": this.queryCashLog.pageNo,
+                    "pageSize": this.queryCashLog.pageSize
+                };
+
+                // 密文
+                let encryptStr = paramEncryptLong(param, this.publicKey);
+
+                let formData = new FormData();
+                formData.append("parameter", encryptStr);
+                formData.append("merchantId", this.merchantId);
+
+                axios({
+                    url: "http://192.168.1.120:8030/api/v1/accountCashLog",
+                    method: "post",
+                    data: formData
+                }).then(res => {
+                    let {code, data, msg} = res.data;
+                    if (code == 200) {
+                        this.queryCashLog.total = data.paging.total;
+                        this.cashLog = data.list;
+                        this.cash.cashLoading = false;
+                    } else {
+                        this.$message.error(msg);
+                    }
+                });
+
+            },
+            accountRecharge() {
+                this.recharge.rechargeButtonText = "正在充值...";
+                let param = {
+                    "account": this.recharge.account,
+                    "merchantId": this.merchantId,
+                    "rechargeNum": this.recharge.rechargeNum,
+                    // "notifyUrl": "http://testtp.esbug.com:7000/api/v1/notifyUrl"
+                };
+
+                // 密文
+                let encryptStr = paramEncryptLong(param, this.publicKey);
+
+                let formData = new FormData();
+                formData.append("parameter", encryptStr);
+                formData.append("merchantId", this.merchantId);
+
+                axios({
+                    url: "http://192.168.1.120:8030/api/v1/accountRecharge",
+                    method: "post",
+                    data: formData
+                }).then(res => {
+                    let {code, data, msg} = res.data;
+                    if (code == 200) {
+                        this.$message.success(data.remark);
+                        this.rechargeDialog = false;
+                        this.rechargeLogFunction(1);
+                        let info = accountInfo(this.account, this.merchantId, this.publicKey);
+                        axios({
+                            url: "http://192.168.1.120:8030/api/v1/accountInfo",
+                            method: "post",
+                            data: info
+                        }).then(userInfo => {
+                            console.log(userInfo);
+                            this.flushAccountInfo(userInfo.data.data);
+                        });
+                    } else {
+                        this.$message.error(msg);
+                    }
+                    this.recharge.rechargeButtonText = "确定";
+                });
+            },
+            accountCash() {
+                this.cash.cashButtonText = "正在提现...";
+                let param = {
+                    "account": this.cash.account,
+                    "merchantId": this.merchantId,
+                    "cashNum": this.cash.cashNum,
+                };
+
+                // 密文
+                let encryptStr = paramEncryptLong(param, this.publicKey);
+
+                let formData = new FormData();
+                formData.append("parameter", encryptStr);
+                formData.append("merchantId", this.merchantId);
+
+                axios({
+                    url: "http://192.168.1.120:8030/api/v1/accountCash",
+                    method: "post",
+                    data: formData
+                }).then(res => {
+                    let {code, data, msg} = res.data;
+                    if (code == 200) {
+                        this.$message.success(data.remark);
+                        this.cashDialog = false;
+                        this.cashLogFunction(1);
+                        let info = accountInfo(this.account, this.merchantId, this.publicKey);
+                        axios({
+                            url: "http://192.168.1.120:8030/api/v1/accountInfo",
+                            method: "post",
+                            data: info
+                        }).then(userInfo => {
+                            this.flushAccountInfo(userInfo.data.data);
+                        });
+                    } else {
+                        this.$message.error(msg);
+                    }
+                    this.cash.cashButtonText = "确定";
+                });
+            },
+            flushAccountInfo(accountInfo) {
+                sessionStorage.setItem("user", JSON.stringify(accountInfo));
+                this.account = accountInfo.account;
+                this.walletAddress = accountInfo.walletAddress;
+                this.walletBalance = accountInfo.walletBalance;
+                this.recharge.account = accountInfo.account;
+                this.cash.account = accountInfo.account;
+            },
+            test() {
+                let param = {
+                    "account": this.account,
+                    "merchantId": this.merchantId,
+                    "pageNo": this.queryRechargeLog.pageNo,
+                    "pageSize": this.queryRechargeLog.pageSize,
+                    "notifyUrl": "http://testtp.esbug.com:7000/api/v1/notifyUrl"
+                };
+
+                // 密文
+                let encryptStr = paramEncryptLong(param, this.publicKey);
+
+                let formData = new FormData();
+                formData.append("parameter", encryptStr);
+                formData.append("merchantId", this.merchantId);
+
+                axios({
+                    url: "http://192.168.1.120:8030/api/v1/accountRechargeLog",
+                    method: "post",
+                    data: formData
+                }).then(res => {
+                    let {code, data, msg} = res.data;
+                    if (code == 200) {
+                        console.log(data);
+                    } else {
+                        this.$message.error(msg);
+                    }
+                });
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

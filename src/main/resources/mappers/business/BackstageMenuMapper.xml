@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.guaranty.dao.business.BackstageMenuMapper">
+
+    <resultMap id="backstageMenuMap" type="com.example.guaranty.entity.business.BackstageMenu">
+
+    </resultMap>
+
+    <select id="selectByUsername" resultMap="backstageMenuMap">
+        SELECT
+            m.id         AS id,
+            m.url        AS url,
+            m.permission AS permission
+        FROM
+            t_backstage_menu AS m
+            LEFT JOIN t_backstage_role_menu AS rm
+                ON rm.back_menu_id = m.id
+            LEFT JOIN t_backstage_role AS r
+                ON r.id = rm.back_role_id
+            LEFT JOIN t_backstage_user_role AS ur
+                ON ur.back_role_id = r.id
+            LEFT JOIN t_backstage_user AS u
+                ON u.id = ur.back_user_id
+        WHERE u.user_name = #{username}
+    </select>
+
+    <select id="getUserMenu" resultType="com.example.guaranty.vo.business.BackMenuVO">
+        SELECT
+            DISTINCT
+            m.id          AS menuId,
+            m.title       AS menuName,
+            m.permission  AS permission,
+            m.url         AS url,
+            m.type        AS type,
+            m.parent_id   AS pid,
+            m.description AS description,
+            m.create_time AS createTime,
+            m.modify_time AS modifyTime
+        FROM
+            t_backstage_menu AS m
+            LEFT JOIN t_backstage_role_menu AS rm
+                ON rm.back_menu_id = m.id
+            LEFT JOIN t_backstage_role AS r
+                ON r.id = rm.back_role_id
+            LEFT JOIN t_backstage_user_role AS ur
+                ON ur.back_role_id = r.id
+            LEFT JOIN t_backstage_user AS u
+                ON u.id = ur.back_user_id
+            LEFT JOIN t_backstage_menu AS m2
+                ON m.parent_id = m2.id
+        WHERE u.id = #{userId}
+    </select>
+
+    <select id="selectMenuByPid" resultMap="backstageMenuMap">
+        SELECT *
+        FROM t_backstage_menu AS m
+        WHERE m.parent_id = #{pid} AND m.valid = 1
+    </select>
+
+
+</mapper>

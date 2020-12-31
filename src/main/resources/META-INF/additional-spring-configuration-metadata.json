@@ -1,0 +1,138 @@
+{
+  "properties": [
+    {
+      "name": "fabric-sdk-plus.channel-name",
+      "type": "java.lang.String",
+      "description": "fabric sdk plus 应用通道名."
+    },
+    {
+      "name": "fabric-sdk-plus.connection-file-path",
+      "type": "java.lang.String",
+      "description": "fabric sdk plus 连接配置文件路径."
+    },
+    {
+      "name": "file-upload.path",
+      "type": "java.lang.String",
+      "description": "Description for file-upload.path."
+    },
+    {
+      "name": "file-upload.base-url",
+      "type": "java.lang.String",
+      "description": "Description for file-upload.base-url."
+    },
+    {
+      "name": "real-name-auth.app-code",
+      "type": "java.lang.String",
+      "description": "Description for real-name-auth.app-code."
+    },
+    {
+      "name": "real-name-auth.host",
+      "type": "java.lang.String",
+      "description": "Description for real-name-auth.host."
+    },
+    {
+      "name": "real-name-auth.path",
+      "type": "java.lang.String",
+      "description": "Description for real-name-auth.path."
+    },
+    {
+      "name": "real-name-auth.method",
+      "type": "java.lang.String",
+      "description": "Description for real-name-auth.method."
+    },
+    {
+      "name": "email-verify.subject",
+      "type": "java.lang.String",
+      "description": "Description for email-verify.subject."
+    },
+    {
+      "name": "email-verify.template",
+      "type": "java.lang.String",
+      "description": "Description for email-verify.template."
+    },
+    {
+      "name": "email-verify.from",
+      "type": "java.lang.String",
+      "description": "Description for email-verify.from."
+    },
+    {
+      "name": "email-verify.expire-time",
+      "type": "java.lang.String",
+      "description": "Description for email-verify.expire-time."
+    },
+    {
+      "name": "email-verify.replace-str",
+      "type": "java.lang.String",
+      "description": "Description for email-verify.replace-str."
+    },
+    {
+      "name": "fabric-sdk.tls",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.tls."
+    },
+    {
+      "name": "fabric-sdk.ca-name",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.ca-name."
+    },
+    {
+      "name": "fabric-sdk.ca-admin-name",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.ca-admin-name."
+    },
+    {
+      "name": "fabric-sdk.ca-admin-pass",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.ca-admin-pass."
+    },
+    {
+      "name": "fabric-sdk.ca-ip",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.ca-ip."
+    },
+    {
+      "name": "fabric-sdk.ca-port",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.ca-port."
+    },
+    {
+      "name": "fabric-sdk.ca-dep",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.ca-dep."
+    },
+    {
+      "name": "fabric-sdk.org-name",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.org-name."
+    },
+    {
+      "name": "fabric-sdk.org-msp-id",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.org-msp-id."
+    },
+    {
+      "name": "fabric-sdk.org-domain-name",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.org-domain-name."
+    },
+    {
+      "name": "fabric-sdk.channel-name",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.channel-name."
+    },
+    {
+      "name": "fabric-sdk.chain-code-name",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.chain-code-name."
+    },
+    {
+      "name": "fabric-sdk.chain-code-version",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.chain-code-version."
+    },
+    {
+      "name": "fabric-sdk.chain-code-source",
+      "type": "java.lang.String",
+      "description": "Description for fabric-sdk.chain-code-source."
+    }
+  ] }

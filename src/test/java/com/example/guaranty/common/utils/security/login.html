@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>app登录</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <!--引入 element-ui 的样式，-->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 必须先引入vue，  后使用element-ui -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <!-- 引入element 的组件库-->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.bootcss.com/jsencrypt/3.0.0-beta.1/jsencrypt.js"></script>
+    <script src="./encryption.js"></script>
+</head>
+<body>
+<div id="login" style="position: absolute; width: 30%; height: 100%;left: 0; right: 0; margin: 200px auto;">
+    <h4 style="text-align: center;">APP</h4>
+    <el-form label-width="100px" class="demo-ruleForm">
+        <el-form-item label="账号" prop="account" style="width: 500px;">
+            <el-input v-model="account"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button @click="createAccount()">{{createAccountButtonText}}</el-button>
+            <el-button type="primary" @click="submitForm()">登录</el-button>
+        </el-form-item>
+    </el-form>
+</div>
+
+<script>
+    new Vue({
+        el: "#login",
+        data() {
+            return {
+                account: '1468946038@qq.com',
+                merchantId: '5888234294161727792',
+                createAccountButtonText: 'APP用户注册',
+                publicKey: 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCrUOuCdlUhy+r+gS83V1bIuqJi0GZ2xZShHW9q961CyQGaELY7SARYF9I5zA4281jZoMLjmvJBAiynFR6KLlrLIUunPR4yjTtCbdp+y9wx1SQYP96HGe1eBmBb/ATt7WCgAtGyXZco/AKksfXzZQ1/lQmACcB+S/DGopEmhN4/zQIDAQAB',
+                privateKey: 'MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKtQ64J2VSHL6v6BLzdXVsi6omLQZnbFlKEdb2r3rULJAZoQtjtIBFgX0jnMDjbzWNmgwuOa8kECLKcVHoouWsshS6c9HjKNO0Jt2n7L3DHVJBg/3ocZ7V4GYFv8BO3tYKAC0bJdlyj8AqSx9fNlDX+VCYAJwH5L8MaikSaE3j/NAgMBAAECgYBGvF7Bu4JjNgONmmGYhCN9NjKeglYMbIB2FeVPUXzkuoJCzuuvhojkptFStAKahdgF4+8Uc4Hbfb5aLsoxW/p4fp6vpooNT95OlFCGd5L/7cgRVAjkaVzGHX+sSa5UnPMT5QSxvo34bfq5JdqD4kFPNJyzNRAftawbRHeFQ3v6MQJBAO5c8FKn8rtzp4RErmTVgTiSx/Ctttbxq/cuLILGHX5wrcpBRBAt6E/qZpyC/lVHtez8NckfGSoAZQ17FDxmGocCQQC3/fsrwsRSyT88FsCyeAfnwmcqMr0+ZKLJoDZsd8hELc9BErG0ryf2Rc/1ZnP50CR/G6JBgdPg7a9+R3BKpwQLAkB2ODIZTKLexaW3vDiiWiIU5Pe1LvMX+BTKK2R4F7pZE5meTnBrddlaiW8LAQ0TTtW0DALBFWNtqXR1Ey4eJqXRAkBF2XXxNw+xHhWTik+9cTQPGA5yRrDxbuMeCGSg6RhuSbXUznQIVDanl/lLAIom3I3+c08170OwsItfNV+794vhAkEA3h7kNOKeRGg3tl48ngDUlA7F3Y8Pyw48nz81TB3h5XAElgO5xcVQnTRHdLwuxICWclUkeslHWjmkrzrW0v1hMw=='
+            }
+        },
+        methods: {
+            submitForm() {
+                let param = {
+                    "account": this.account,
+                    "merchantId": this.merchantId
+                };
+
+                // 密文
+                let encryptStr = paramEncryptLong(param, this.publicKey);
+
+                let formData = new FormData();
+                formData.append("parameter", encryptStr);
+                formData.append("merchantId", this.merchantId);
+
+                axios({
+                    url: "http://192.168.1.120:8030/api/v1/accountInfo",
+                    method: "post",
+                    data: formData
+                }).then(res => {
+                    if (res.data.code == 200) {
+                        console.log(res.data.data);
+                        sessionStorage.setItem("user", JSON.stringify(res.data.data));
+                        location.href = "./index.html"
+                    } else {
+                        this.$message.error(res.data.msg);
+                    }
+                });
+            },
+            createAccount() {
+                this.createAccountButtonText = "正在注册...";
+                let param = {
+                    "account": this.account,
+                    "merchantId": this.merchantId
+                };
+
+                // 密文
+                let encryptStr = paramEncryptLong(param, this.publicKey);
+
+                let formData = new FormData();
+                formData.append("parameter", encryptStr);
+                formData.append("merchantId", this.merchantId);
+
+                axios({
+                    url: "http://192.168.1.120:8030/api/v1/createAccount",
+                    method: "post",
+                    data: formData
+                }).then(res => {
+                    if (res.data.code == 200) {
+                        console.log(res.data.data);
+                        this.$message.success(res.data.msg);
+                    } else {
+                        this.$message.error(res.data.msg);
+                    }
+                    this.createAccountButtonText = "APP用户注册";
+                });
+            }
+        }
+    });
+
+</script>
+
+</body>
+</html>
